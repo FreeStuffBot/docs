@@ -4,8 +4,7 @@
       <span :data-method="data.method.toUpperCase()" v-text="data.method" />
       <span class="route-pre" v-text="v2.base" />
       <span class="route" v-text="data.route" />
-      {{ open }}
-      <Icon name="ph:caret-down-bold" :style="{rotation: open ? '0deg' : '-90deg'}" />
+      <Icon name="ph:caret-down-bold" />
     </div>
     <div class="content">
       <h4>Parameters</h4>
@@ -53,6 +52,9 @@ const props = defineProps<{
 const data = computed(() => v2.endpoints[props.name])
 
 const open = useState(`endpointstate-${props.name}`, () => false)
+const openRotate = computed(() => open.value ? '0deg' : '-90deg')
+const openHeight = computed(() => open.value ? 'auto' : '0')
+const openRel = computed(() => open.value ? '1' : '0')
 
 const codeNames: Record<string, string> = {
   '1xx': '**Informational**',
@@ -126,6 +128,7 @@ const codeNames: Record<string, string> = {
   border-radius: 10pt;
   border: 1px solid #ffffff11;
   margin-bottom: 15pt;
+  overflow: hidden;
 }
 
 .header {
@@ -138,6 +141,11 @@ const codeNames: Record<string, string> = {
 
   &:hover {
     background-color: #8888880b;
+  }
+
+  svg {
+    transition: rotate .1s ease;
+    rotate: v-bind(openRotate);
   }
 
   [data-method] {
@@ -167,7 +175,9 @@ const codeNames: Record<string, string> = {
 }
 
 .content {
-  padding: 10pt;
+  padding: calc(5pt + v-bind(openRel) * 5pt) 10pt;
+  max-height: v-bind(openHeight);
+  overflow: hidden;
 }
 
 h4 {
