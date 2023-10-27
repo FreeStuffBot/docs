@@ -1,65 +1,291 @@
 <template>
   <div class="endpoint">
-    <div class="header">
-      <span :data-method="method.toUpperCase()" v-text="method" />
-      <span class="route-pre">https://freestuffbot.xyz/v1</span>
-      <span class="route" v-text="route" />
+    <div class="header" @click="open = !open">
+      <span :data-method="data.method.toUpperCase()" v-text="data.method" />
+      <span class="route-pre" v-text="v2.base" />
+      <span class="route" v-text="data.route" />
+      {{ open }}
+      <Icon name="ph:caret-down-bold" :style="{rotation: open ? '0deg' : '-90deg'}" />
     </div>
     <div class="content">
-      <h4 v-if=!!$slots.parameters>Parameters</h4>
-      <slot name="parameters" />
+      <h4>Parameters</h4>
+      <div class="params">
+        <span class="title">Location</span>
+        <span class="title">Key</span>
+        <span class="title">Type</span>
+        <span class="title">Description</span>
+        <template v-for="p of data.params" :key="p.key">
+          <span class="location" v-text="p.location" />
+          <span class="key" v-text="p.key" />
+          <span class="type" v-text="p.type" />
+          <span class="desc" v-text="p.desc" />
+        </template>
+      </div>
 
-      <h4 v-if=!!$slots.responses>Responses</h4>
-      <slot name="responses" />
+      <h4>Responses</h4>
+      <div class="responses">
+        <div v-for="res of data.responses" :key="res.code" class="response">
+          <div class="title" :data-code="res.code">
+            <div class="code" v-text="res.code" />
+            <div class="codename" v-text="codeNames[String(res.code)]" />
+          </div>
+
+          <span v-text="res.desc" />
+
+          <span class="restype">Body</span>
+          <code v-text="JSON.stringify(res.returns.body, null, 2) || '(empty)'" />
+
+          <span class="restype">Headers</span>
+          <code v-text="Object.entries(res.returns.headers).map(([k, v]) => `${k}=${v}`).join('\n') || '(none)'" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  method: string
-  route: string
+import v2 from '~/data/api-v2.json'
+
+const props = defineProps<{
+  name: keyof typeof v2['endpoints']
 }>()
+
+const data = computed(() => v2.endpoints[props.name])
+
+const open = useState(`endpointstate-${props.name}`, () => false)
+
+const codeNames: Record<string, string> = {
+  '1xx': '**Informational**',
+  '100': 'Continue',
+  '101': 'Switching Protocols',
+  '2xx': '**Successful**',
+  '200': 'OK',
+  '201': 'Created',
+  '202': 'Accepted',
+  '203': 'Non-Authoritative Information',
+  '204': 'No Content',
+  '205': 'Reset Content',
+  '206': 'Partial Content',
+  '3xx': '**Redirection**',
+  '300': 'Multiple Choices',
+  '301': 'Moved Permanently',
+  '302': 'Found',
+  '303': 'See Other',
+  '304': 'Not Modified',
+  '305': 'Use Proxy',
+  '307': 'Temporary Redirect',
+  '4xx': '**Client Error**',
+  '400': 'Bad Request',
+  '401': 'Unauthorized',
+  '402': 'Payment Required',
+  '403': 'Forbidden',
+  '404': 'Not Found',
+  '405': 'Method Not Allowed',
+  '406': 'Not Acceptable',
+  '407': 'Proxy Authentication Required',
+  '408': 'Request Timeout',
+  '409': 'Conflict',
+  '410': 'Gone',
+  '411': 'Length Required',
+  '412': 'Precondition Failed',
+  '413': 'Payload Too Large',
+  '414': 'URI Too Long',
+  '415': 'Unsupported Media Type',
+  '416': 'Range Not Satisfiable',
+  '417': 'Expectation Failed',
+  '418': 'I\'m a teapot',
+  '426': 'Upgrade Required',
+  '5xx': '**Server Error**',
+  '500': 'Internal Server Error',
+  '501': 'Not Implemented',
+  '502': 'Bad Gateway',
+  '503': 'Service Unavailable',
+  '504': 'Gateway Time-out',
+  '505': 'HTTP Version Not Supported',
+  '102': 'Processing',
+  '207': 'Multi-Status',
+  '226': 'IM Used',
+  '308': 'Permanent Redirect',
+  '422': 'Unprocessable Entity',
+  '423': 'Locked',
+  '424': 'Failed Dependency',
+  '428': 'Precondition Required',
+  '429': 'Too Many Requests',
+  '431': 'Request Header Fields Too Large',
+  '451': 'Unavailable For Legal Reasons',
+  '506': 'Variant Also Negotiates',
+  '507': 'Insufficient Storage',
+  '511': 'Network Authentication Required',
+  '7xx': '**Developer Error**'
+}
 </script>
 
-<style scoped>
+<style scoped lang=scss>
 .endpoint {
   background-color: var(--elements-backdrop-background);
   border-radius: 10pt;
   border: 1px solid #ffffff11;
+  margin-bottom: 15pt;
 }
 
 .header {
   display: flex;
   border-bottom: inherit;
   padding: 10pt;
-}
+  align-items: center;
+  cursor: pointer;
+  transition: background-color .1s ease;
 
-[data-method] {
-  padding: 2px 8pt;
-  border-radius: 999pt;
-  border: 1px solid #888888;
-  font-size: 10pt;
-  font-weight: bolder;
-}
+  &:hover {
+    background-color: #8888880b;
+  }
 
-[data-method="GET"] {
-  background-color: #0059ff66;
-  border-color: #0059ff;
-}
+  [data-method] {
+    padding: 2px 8pt;
+    border-radius: 999pt;
+    border: 1px solid #888888;
+    font-size: 10pt;
+    font-weight: bolder;
+  }
 
-.route-pre {
-  font-size: 12pt;
-  margin-left: 10pt;
-  opacity: .4;
-}
+  [data-method="GET"] {
+    background-color: #0059ff66;
+    border-color: #0059ff;
+  }
 
-.route {
-  font-size: 12pt;
-  font-weight: bold;
+  .route-pre {
+    font-size: 12pt;
+    margin-left: 10pt;
+    opacity: .4;
+  }
+
+  .route {
+    font-size: 12pt;
+    font-weight: bold;
+    flex-grow: 1;
+  }
 }
 
 .content {
   padding: 10pt;
+}
+
+h4 {
+  font-weight: bolder;
+  font-size: 14pt;
+  margin-bottom: 10pt;
+
+  &:not(:first-child) {
+    margin-top: 20pt;
+  }
+}
+
+.params {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  gap: 5pt 15pt;
+
+  .title {
+    font-size: 9pt;
+    font-weight: bolder;
+  }
+
+  .location {
+    border: 1px solid #88888899;
+    padding: 2pt 4pt;
+    border-radius: 4pt;
+    width: fit-content;
+    height: fit-content;
+    opacity: .8;
+  }
+
+  span:not(.title) {
+    min-height: 24pt;
+    align-items: center;
+    display: flex;
+    line-height: 1.2em;
+  }
+
+  .key {
+    height: fit-content;
+  }
+
+  .type {
+    font-family: monospace;
+    opacity: .8;
+    height: fit-content;
+  }
+
+  .desc {
+    height: fit-content;
+    line-break: normal;
+    word-wrap: normal;
+  }
+}
+
+.responses {
+  .response {
+    background-color: #88888818;
+    border-radius: 4pt;
+    padding: 10pt;
+    margin-top: 5pt;
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10pt;
+    --color: #8acbdf;
+
+    &[data-code^="2"] { --color: #6cd86c; }
+    &[data-code^="4"] { --color: #e0588c; }
+    &[data-code^="5"] { --color: #dd7133; }
+
+    .code {
+      border: 1px solid var(--color);
+      border-radius: 999pt;
+      display: flex;
+      align-items: center;
+      line-height: 1em;
+      padding: 3pt calc(3pt + .3em) 3pt 3pt;
+      gap: 3pt;
+      margin-right: 10pt;
+      font-weight: bolder;
+      font-size: 10pt;
+      color: var(--color);
+
+      &::before {
+        content: '';
+        width: .6em;
+        height: .6em;
+        margin: .2em;
+        display: inline-block;
+        border-radius: 999pt;
+        background-color: var(--color);
+      }
+    }
+  }
+
+  .codename {
+    font-weight: bolder;
+    font-size: 11pt;
+    opacity: .8;
+  }
+
+  .restype {
+    font-size: 9pt;
+    font-weight: bolder;
+    margin: 10pt 0 5pt 0;
+    display: block;
+  }
+
+  code {
+    display: block;
+    border: 1px solid #88888833;
+    padding: 5pt;
+    white-space: pre;
+    font-family: monospace;
+    border-radius: 2px;
+  }
 }
 </style>

@@ -1,0 +1,165 @@
+{
+  "base": "https://freestuffbot.xyz/v2",
+  "endpoints": {
+    "get-ping": {
+      "method": "GET",
+      "route": "/ping",
+      "params": [
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your api key"
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success",
+          "returns": {
+            "body": {
+              "success": true,
+              "data": {}
+            },
+            "headers": {
+            }
+          }
+        }
+      ]
+    },
+    "get-products": {
+      "method": "GET",
+      "route": "/products",
+      "params": [
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your api key"
+        },
+        {
+          "location": "query",
+          "key": "type",
+          "type": "ProductChannel",
+          "desc": "Only list products with the given type"
+        },
+        {
+          "location": "query",
+          "key": "kind",
+          "type": "ProductKind",
+          "desc": "Only list products with the given kind"
+        },
+        {
+          "location": "query",
+          "key": "limit",
+          "type": "int",
+          "desc": "Limit how many products are returned at once"
+        },
+        {
+          "location": "query",
+          "key": "offset",
+          "type": "int",
+          "desc": "Offset the results. Used with limit parameter for pagination."
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success",
+          "returns": {
+            "body": {
+              "success": true,
+              "data": {}
+            },
+            "headers": {
+              "X-Meta-LastUpdate": "<updateTimestamp>"
+            }
+          }
+        }
+      ]
+    },
+    "get-products-id": {
+      "method": "GET",
+      "route": "/products/:id",
+      "params": [
+        {
+          "location": "route",
+          "key": ":id",
+          "type": "string",
+          "desc": "The id of the product you're looking up"
+        },
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your api key"
+        },
+        {
+          "location": "query",
+          "key": "localize",
+          "type": "string[]",
+          "desc": "Deprecated. Returns a localized object for each language provided in the query value."
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success",
+          "returns": {
+            "body": {
+              "success": true,
+              "data": {
+                "@see": "ProductModel"
+              }
+            },
+            "headers": {
+              "X-Server-Time": "<integer timestamp>"
+            }
+          }
+        },
+        {
+          "code": 400,
+          "desc": "Invalid product id.",
+          "returns": {
+            "body": {
+              "success": false,
+              "error": "error name",
+              "message": "error message"
+            },
+            "headers": {
+              "X-Server-Time": "<integer timestamp>"
+            }
+          }
+        },
+        {
+          "code": 404,
+          "desc": "No product with your id was found.",
+          "returns": {
+            "body": {
+              "success": false,
+              "error": "error name",
+              "message": "error message"
+            },
+            "headers": {
+              "X-Server-Time": "<integer timestamp>"
+            }
+          }
+        },
+        {
+          "code": 502,
+          "desc": "An internal error, try again after a few seconds.",
+          "returns": {
+            "body": {
+              "success": false,
+              "error": "error name",
+              "message": "error message"
+            },
+            "headers": {
+              "X-Server-Time": "<integer timestamp>"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
