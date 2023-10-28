@@ -1,5 +1,92 @@
 {
   "base": "https://freestuffbot.xyz/v2",
+  "@": {
+    "generic-error": {
+      "body": "@generic-error-body",
+      "headers": {
+        "X-Server-Time": "<integer timestamp>"
+      }
+    },
+    "generic-error-body": {
+      "success": false,
+      "error": "error name",
+      "message": "error message"
+    },
+    "generic-502": {
+      "code": 502,
+      "desc": "An internal error, try again after a few seconds.",
+      "returns": {
+        "body": "@generic-error-body",
+        "headers": {
+          "X-Server-Time": "<integer timestamp>"
+        }
+      }
+    }
+  },
+  "models": {
+    "ProductKind": {
+      "type": "string",
+      "schema": [
+        "game // normal games",
+        "dlc // game addons",
+        "loot // ingame content",
+        "software // non-game software (unused)",
+        "art // digital artwork (unused)",
+        "ost // game soundtrack (unused)",
+        "book // digital book (unused)",
+        "other // other kinds of content, gaming related"
+      ]
+    },
+    "ProductApprovalStatus": {
+      "type": "string",
+      "schema": [
+        "pending // data has been aggregated but is awaiting verification through a human content moderator",
+        "issues // unused",
+        "approved // the product was approved by a human content moderator or automated system but is not yet published",
+        "processing // the product is in a loading state. automated systems are processing the product, e.g. scraping data",
+        "published // this product has been published"
+      ]
+    },
+    "Product": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  id: int",
+        "  title: string",
+        "  prices: TODO",
+        "  kind: ProductKind",
+        "  tags: string[]",
+        "  thumbnails: TODO",
+        "  description: string",
+        "  rating: float // this is an aggregated score where 0 represents the worst possible and 1 the best possible rating",
+        "  copyright: string // name of the ip copyright holder",
+        "  until: int // unix timestamp in ms",
+        "  type: PublishingChannel",
+        "  urls: TODO",
+        "  platform: string",
+        "  flags: TODO",
+        "  notice: string // a rare optional extra info text added by a FreeStuff team member meant for public display alongside the product",
+        "  meta: TODO",
+        "  staffApproved: boolean // true means a human checked the data prior to being published",
+        "}"
+      ]
+    },
+    "Announcement": {
+      "type": "Object",
+      "schema": []
+    },
+    "Channel": {
+      "type": "string",
+      "schema": [
+        "keep // Free to Keep / 100% discount",
+        "timed // Free to play / Free weekend",
+        "prime // Available through Prime Gaming",
+        "gamepass // Available through GamePass",
+        "other // DLCs & More / everything else",
+        "debug // exclusively used internally"
+      ]
+    }
+  },
   "endpoints": {
     "get-ping": {
       "method": "GET",
@@ -75,7 +162,18 @@
               "X-Meta-LastUpdate": "<updateTimestamp>"
             }
           }
-        }
+        },
+        {
+          "code": 400,
+          "desc": "Invalid product id.",
+          "returns": "@generic-error"
+        },
+        {
+          "code": 404,
+          "desc": "No product with your id was found.",
+          "returns": "@generic-error"
+        },
+        "@generic-502"
       ]
     },
     "get-products-id": {
@@ -120,45 +218,14 @@
         {
           "code": 400,
           "desc": "Invalid product id.",
-          "returns": {
-            "body": {
-              "success": false,
-              "error": "error name",
-              "message": "error message"
-            },
-            "headers": {
-              "X-Server-Time": "<integer timestamp>"
-            }
-          }
+          "returns": "@generic-error"
         },
         {
           "code": 404,
           "desc": "No product with your id was found.",
-          "returns": {
-            "body": {
-              "success": false,
-              "error": "error name",
-              "message": "error message"
-            },
-            "headers": {
-              "X-Server-Time": "<integer timestamp>"
-            }
-          }
+          "returns": "@generic-error"
         },
-        {
-          "code": 502,
-          "desc": "An internal error, try again after a few seconds.",
-          "returns": {
-            "body": {
-              "success": false,
-              "error": "error name",
-              "message": "error message"
-            },
-            "headers": {
-              "X-Server-Time": "<integer timestamp>"
-            }
-          }
-        }
+        "@generic-502"
       ]
     }
   }

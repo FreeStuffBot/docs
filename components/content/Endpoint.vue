@@ -13,7 +13,7 @@
         <span class="title">Key</span>
         <span class="title">Type</span>
         <span class="title">Description</span>
-        <template v-for="p of data.params" :key="p.key">
+        <template v-for="p of data.params.map(q => r(q))" :key="p.key">
           <span class="location" v-text="p.location" />
           <span class="key" v-text="p.key" />
           <span class="type" v-text="p.type" />
@@ -23,19 +23,19 @@
 
       <h4>Responses</h4>
       <div class="responses">
-        <div v-for="res of data.responses" :key="res.code" class="response">
+        <div v-for="res of data.responses.map(q => r(q))" :key="res.code" class="response">
           <div class="title" :data-code="res.code">
             <div class="code" v-text="res.code" />
             <div class="codename" v-text="codeNames[String(res.code)]" />
           </div>
 
-          <span v-text="res.desc" />
+          <span v-text="r(res.desc)" />
 
           <span class="restype">Body</span>
-          <code v-text="JSON.stringify(res.returns.body, null, 2) || '(empty)'" />
+          <code v-text="JSON.stringify(r(r(res.returns).body), null, 2) || '(empty)'" />
 
           <span class="restype">Headers</span>
-          <code v-text="Object.entries(res.returns.headers).map(([k, v]) => `${k}=${v}`).join('\n') || '(none)'" />
+          <code v-text="Object.entries(r(r(res.returns).headers)).map(([k, v]) => `${k}=${v}`).join('\n') || '(none)'" />
         </div>
       </div>
     </div>
@@ -55,6 +55,11 @@ const open = useState(`endpointstate-${props.name}`, () => false)
 const openRotate = computed(() => open.value ? '0deg' : '-90deg')
 const openHeight = computed(() => open.value ? 'auto' : '0')
 const openRel = computed(() => open.value ? '1' : '0')
+
+function r(word: any) {
+  if (typeof word !== 'string' || !word.startsWith('@')) return word
+  return (v2['@'] as any)[word.slice(1)]
+}
 
 const codeNames: Record<string, string> = {
   '1xx': '**Informational**',
@@ -126,7 +131,7 @@ const codeNames: Record<string, string> = {
 .endpoint {
   background-color: var(--elements-backdrop-background);
   border-radius: 10pt;
-  border: 1px solid #ffffff11;
+  border: 1px solid #88888830;
   margin-bottom: 15pt;
   overflow: hidden;
 }
