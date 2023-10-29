@@ -32,10 +32,19 @@
           <span v-text="r(res.desc)" />
 
           <span class="restype">Body</span>
-          <code v-text="JSON.stringify(r(r(res.returns).body), null, 2) || '(empty)'" />
+          <code v-text="JSON.stringify(r(r(res.returns).body), null, 2) || '(none)'" />
 
           <span class="restype">Headers</span>
-          <code v-text="Object.entries(r(r(res.returns).headers)).map(([k, v]) => `${k}=${v}`).join('\n') || '(none)'" />
+          <code>
+            <div v-for="line,i of Object.entries(r(r(res.returns).headers)).map(([k, v]) => `${k}=${v}`)" :key="i" class="line">
+              <span v-text="line.split('//')[0].replace(/\s+$/, '')" />
+              <span v-if="line.includes('//')" class="comment1">&mdash;</span>
+              <span v-if="line.includes('//')" v-text="line.split('//')[1]" class="comment2" />
+            </div>
+            <div v-if="!Object.entries(r(r(res.returns).headers)).length" class="lines">
+              <span>(none)</span>
+            </div>
+          </code>
         </div>
       </div>
     </div>
@@ -298,9 +307,23 @@ h4 {
     display: block;
     border: 1px solid #88888833;
     padding: 5pt;
-    white-space: pre;
     font-family: monospace;
     border-radius: 2px;
+
+    &:not(:has(.line)) {
+      white-space: pre;
+    }
+
+    .line {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: .8em;
+      font-family: monospace;
+
+      span:not([class^="comment"]) { white-space: pre; }
+      .comment1 { opacity: .3; }
+      .comment2 { opacity: .6; }
+    }
   }
 }
 </style>

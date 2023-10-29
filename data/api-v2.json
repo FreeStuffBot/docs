@@ -1,26 +1,19 @@
 {
-  "base": "https://freestuffbot.xyz/v2",
+  "base": "https://api.freestuffbot.xyz/v2",
   "@": {
     "generic-error": {
-      "body": "@generic-error-body",
+      "body": {
+        "error": "error name",
+        "message": "error message"
+      },
       "headers": {
-        "X-Server-Time": "<integer timestamp>"
+        "X-Server-Time": "<timestamp:int> // current server time in unix ms"
       }
-    },
-    "generic-error-body": {
-      "success": false,
-      "error": "error name",
-      "message": "error message"
     },
     "generic-502": {
       "code": 502,
       "desc": "An internal error, try again after a few seconds.",
-      "returns": {
-        "body": "@generic-error-body",
-        "headers": {
-          "X-Server-Time": "<integer timestamp>"
-        }
-      }
+      "returns": "@generic-error"
     }
   },
   "models": {
@@ -47,6 +40,21 @@
         "published // this product has been published"
       ]
     },
+    "Platform": {
+      "type": "string",
+      "schema": [
+        "other",
+        "steam",
+        "epic",
+        "humble",
+        "gog",
+        "origin",
+        "ubi",
+        "itch",
+        "prime",
+        "// Please note that this list is non-exhaustive, while the names above will not change, new platforms may be added at will and this documentation might not always be up to date with all possible values. Be sure to handle unknown platform values properly, e.g. treating them as 'other' until further differenciated."
+      ]
+    },
     "Product": {
       "type": "Object",
       "schema": [
@@ -55,7 +63,7 @@
         "  title: string",
         "  prices: TODO",
         "  kind: ProductKind",
-        "  tags: string[]",
+        "  tags: string[] // unsorted, non-standardized",
         "  thumbnails: TODO",
         "  description: string",
         "  rating: float // this is an aggregated score where 0 represents the worst possible and 1 the best possible rating",
@@ -63,7 +71,7 @@
         "  until: int // unix timestamp in ms",
         "  type: PublishingChannel",
         "  urls: TODO",
-        "  platform: string",
+        "  platform: Platform",
         "  flags: TODO",
         "  notice: string // a rare optional extra info text added by a FreeStuff team member meant for public display alongside the product",
         "  meta: TODO",
@@ -104,12 +112,8 @@
           "code": 200,
           "desc": "Success",
           "returns": {
-            "body": {
-              "success": true,
-              "data": {}
-            },
-            "headers": {
-            }
+            "body": "@",
+            "headers": {}
           }
         }
       ]
@@ -126,27 +130,33 @@
         },
         {
           "location": "query",
-          "key": "type",
-          "type": "ProductChannel",
-          "desc": "Only list products with the given type"
-        },
-        {
-          "location": "query",
-          "key": "kind",
-          "type": "ProductKind",
-          "desc": "Only list products with the given kind"
-        },
-        {
-          "location": "query",
           "key": "limit",
-          "type": "int",
+          "type": "?int",
           "desc": "Limit how many products are returned at once"
         },
         {
           "location": "query",
           "key": "offset",
-          "type": "int",
+          "type": "?int",
           "desc": "Offset the results. Used with limit parameter for pagination."
+        },
+        {
+          "location": "query",
+          "key": "type",
+          "type": "?Channel",
+          "desc": "Only list products with the given type"
+        },
+        {
+          "location": "query",
+          "key": "kind",
+          "type": "?ProductKind",
+          "desc": "Only list products with the given kind"
+        },
+        {
+          "location": "query",
+          "key": "since",
+          "type": "?int (unix ms time)",
+          "desc": "Only list products published at or after the given timestamp"
         }
       ],
       "responses": [
@@ -155,11 +165,13 @@
           "desc": "Success",
           "returns": {
             "body": {
-              "success": true,
-              "data": {}
+              "TODO": true
             },
             "headers": {
-              "X-Meta-LastUpdate": "<updateTimestamp>"
+              "X-Server-Time": "<timestamp:int> // current server time in unix ms",
+              "X-Next-Page": "<offset:int> // which 'offset' query variable should be used to get the next page. this header is not present if the end of the list is reached",
+              "X-Next-Since": "<timestamp:int> // only if the request had a 'since' query parameter - which 'since' query variable should be used when requesting the next time",
+              "X-Check-Again": "<seconds:int> // only if the request had a 'since' query parameter - a recommendation on how many seconds to wait until requesting the next time. this value might decrease during peak times and increase during unlikely moments."
             }
           }
         },
@@ -195,7 +207,7 @@
         {
           "location": "query",
           "key": "localize",
-          "type": "string[]",
+          "type": "?string[]",
           "desc": "Deprecated. Returns a localized object for each language provided in the query value."
         }
       ],
@@ -205,10 +217,7 @@
           "desc": "Success",
           "returns": {
             "body": {
-              "success": true,
-              "data": {
-                "@see": "ProductModel"
-              }
+              "TODO": true
             },
             "headers": {
               "X-Server-Time": "<integer timestamp>"
