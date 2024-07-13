@@ -10,7 +10,7 @@
       <div v-for="line,i of data.schema" :key="i" class="line">
         <span v-text="line.split('//')[0].replace(/\s+$/, '')" />
         <span v-if="line.includes('//')" class="comment1">&mdash;</span>
-        <span v-if="line.includes('//')" v-text="line.split('//')[1]" class="comment2" />
+        <span v-if="line.includes('//')" v-text="line.split('//').slice(1).join('//')" class="comment2" />
       </div>
     </div>
   </div>
@@ -88,8 +88,8 @@ const openRel = computed(() => open.value ? '1' : '0')
     font-family: monospace;
 
     span:not([class^="comment"]) { white-space: pre; }
-    .comment1 { opacity: .3; }
-    .comment2 { opacity: .6; }
+    .comment1 { opacity: .3; user-select: none; }
+    .comment2 { opacity: .6; user-select: none; }
   }
 }
 </style>

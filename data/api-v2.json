@@ -3,8 +3,9 @@
   "@": {
     "generic-error": {
       "body": {
-        "error": "error name",
-        "message": "error message"
+        "type": "urn:fsb:problem:name-here",
+        "title": "error name",
+        "detail": "error message"
       },
       "headers": {
         "X-Server-Time": "<timestamp:int> // current server time in unix ms"
@@ -40,7 +41,7 @@
         "published // this product has been published"
       ]
     },
-    "Platform": {
+    "Store": {
       "type": "string",
       "schema": [
         "other",
@@ -52,7 +53,20 @@
         "ubi",
         "itch",
         "prime",
-        "// Please note that this list is non-exhaustive, while the names above will not change, new platforms may be added at will and this documentation might not always be up to date with all possible values. Be sure to handle unknown platform values properly, e.g. treating them as 'other' until further differenciated."
+        "// Please note that this list is non-exhaustive! While the names above will not change, new stores may be added at will and this documentation might not always be up to date with all possible values. Be sure to handle unknown platform values properly, e.g. treating them as 'other' until further differenciated."
+      ]
+    },
+    "Platform": {
+      "type": "string",
+      "schema": [
+        "windows",
+        "mac",
+        "linux",
+        "android",
+        "ios",
+        "xbox",
+        "playstation",
+        "// Please note that this list is non-exhaustive! While the names above will not change, new platforms may be added at will and this documentation might not always be up to date with all possible values. Be sure to handle unknown platform values properly, e.g. ignoring them."
       ]
     },
     "Product": {
@@ -61,27 +75,135 @@
         "{",
         "  id: int",
         "  title: string",
-        "  prices: TODO",
+        "  prices: ProductPrice[]",
         "  kind: ProductKind",
-        "  tags: string[] // unsorted, non-standardized",
-        "  thumbnails: TODO",
-        "  description: string",
+        "  tags: string[] // unsorted, non-standardized, human readable",
+        "  images: ProductImage[] // *this array will only have a subset of all available images on the free tier",
+        "  description: string // human readable description in english language",
         "  rating: float // this is an aggregated score where 0 represents the worst possible and 1 the best possible rating",
         "  copyright: string // name of the ip copyright holder",
         "  until: int // unix timestamp in ms",
         "  type: PublishingChannel",
-        "  urls: TODO",
-        "  platform: Platform",
-        "  flags: TODO",
+        "  urls: ProductUrl[] // *this array will only have a subset of all available urls on the free tier",
+        "  store: Store // steam, epic games, etc.",
+        "  flags: ProductFlags",
         "  notice: string // a rare optional extra info text added by a FreeStuff team member meant for public display alongside the product",
-        "  meta: TODO",
         "  staffApproved: boolean // true means a human checked the data prior to being published",
+        "  *platforms: Platform[] // *this array will always be empty on the free tier",
+        "  *meta: ProductMeta[] // *this array will always be empty on the free tier",
         "}"
+      ]
+    },
+    "ProductImage": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  url: string",
+        "  flags: ProductImageFlags",
+        "  priority: int // a number indicating how well a certain image is suited for presentation; higher is better",
+        "}"
+      ]
+    },
+    "ProductUrl": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  url: string",
+        "  flags: ProductUrlFlags",
+        "  priority: int // a number indicating how well a certain url is suited for use; higher is better",
+        "}"
+      ]
+    },
+    "ProductPrice": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  currency: string // currency code as by https://www.iban.com/currency-codes",
+        "  oldValue: int // price before the discount; in the currency's smallest unit, e.g. cents; a value of 499 in usd would correspond to $4.99",
+        "  newValue: int // price after the discount; in the currency's smallest unit; usually 0 if product is free",
+        "  converted: boolean // if true the value was converted from either the product's EUR or USD price using market conversion rates; if false the value was taken from the store directly and is usually more accurate",
+        "}"
+      ]
+    },
+    "ProductImageFlags": {
+      "type": "int (bitfield)",
+      "schema": [
+        "1<<0 (PROXIED) // if this image is proxied and/or provided by FreeStuff",
+        "1<<1 (AR_WIDE) // aspect ratio: image is in landscape orientation",
+        "1<<2 (AR_SQUARE) // aspect ratio: image is square",
+        "1<<3 (AR_TALL) // aspect ratio: image is in portrait orientation",
+        "1<<4 (TP_PROMO) // type: promotional image",
+        "1<<5 (TP_LOGO) // type: product's logo",
+        "1<<6 (TP_SHOWCASE) // type: showcase screenshot (e.g. ingame screenshot)",
+        "1<<7 (TP_OTHER) // type: other, any other kind of image",
+        "1<<8 (FT_WATERMARK) // feature: the image has a FreeStuff watermark on it",
+        "1<<9 (FT_TAGS) // feature: the image has the tags rendered onto it",
+        "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
+      ]
+    },
+    "ProductUrlFlags": {
+      "type": "int (bitfield)",
+      "schema": [
+        "1<<0 (ORIGINAL) // only the original link gets this flag",
+        "1<<1 (PROXIED) // the url is proxied through FreeStuff or a thid party",
+        "1<<2 (TRACKING) // the url is tracking how many times it has been clicked. No pii is collected.",
+        "1<<3 (OPENS_IN_BROWSER) // the url opens the platform's website",
+        "1<<4 (OPENS_IN_CLIENT) // the url opens in the platform's client applications",
+        "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
+      ]
+    },
+    "ProductFlags": {
+      "type": "int (bitfield)",
+      "schema": [
+        "1<<0 (TRASH) // game is filtered out by the low quality setting",
+        "1<<1 (THIRDPARTY) // game is offered trough a thirdparty site (deprecated)",
+        "1<<2 (PERMANENT) // the offer is permanent",
+        "1<<3 (STAFF_PICK) // the offer is marked as a \"staff pick\"",
+        "1<<4 (FIRSTPARTY_EXCLUSIVE) // the offer is only shown on FreeStuff's official channels. You should never receive a product with this flag. If you do, please ignore it.",
+        "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
+      ]
+    },
+    "ProductMeta": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  key: ProductMetaKey",
+        "  value: string // depending on the key, certain metadata may be of numeric or boolean form. These values are still encoded and delivered as JSON compatible strings. E.g. \"true\", \"false\", \"12\", \"-4e8\"",
+        "}"
+      ]
+    },
+    "ProductMetaKey": {
+      "type": "string",
+      "schema": [
+        "slug // unique id on the product's store",
+        "scraper.sources // the sources used by the webscraper",
+        "scraper.version // the version of the webscraper used",
+        "igdb.gameid // id of the product's corresponding game in the igdb",
+        "steam.subids // steam subids, if any, comma seperated",
+        "steam.achievements // steam achievement count",
+        "steam.recommendations // steam number of curator recommendations",
+        "epic.namespace // epic games namespace",
+        "epic.id // epic games id",
+        "itch.creator // itch.io creator name",
+        "prime.itemid // prime itemid",
+        "prime.offerid // prime offerid",
+        "prime.codegrant // prime does this product grant a code?",
+        "prime.direct // prime is this product a direct claim?",
+        "prime.linkitem // prime is this product a retail link item?",
+        "prime.fgwp // prime is product flagged as Free Games With Prime?",
+        "prime.priority // prime listing priority",
+        "// note: This list is non-exhaustive and only shows commonly used keys. Additional metadata may be present. Fields starting with a store name are only present on products coming from this store."
       ]
     },
     "Announcement": {
       "type": "Object",
-      "schema": []
+      "schema": [
+        "{",
+        "  id: number",
+        "  urn: string",
+        "  products: int[] // ids of all products in the announcement",
+        "}"
+      ]
     },
     "Channel": {
       "type": "string",
@@ -104,7 +226,7 @@
           "location": "header",
           "key": "Authorization",
           "type": "string",
-          "desc": "Your api key"
+          "desc": "Your Bearer token"
         }
       ],
       "responses": [
@@ -126,7 +248,7 @@
           "location": "header",
           "key": "Authorization",
           "type": "string",
-          "desc": "Your api key"
+          "desc": "Your Bearer token"
         },
         {
           "location": "query",
@@ -202,7 +324,7 @@
           "location": "header",
           "key": "Authorization",
           "type": "string",
-          "desc": "Your api key"
+          "desc": "Your Bearer token"
         },
         {
           "location": "query",
