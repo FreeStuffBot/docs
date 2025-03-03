@@ -28,17 +28,17 @@
         "art // digital artwork (unused)",
         "ost // game soundtrack (unused)",
         "book // digital book (unused)",
+        "storeitem // things like steam points store content",
         "other // other kinds of content, gaming related"
       ]
     },
     "ProductApprovalStatus": {
       "type": "string",
       "schema": [
-        "pending // data has been aggregated but is awaiting verification through a human content moderator",
-        "issues // unused",
         "approved // the product was approved by a human content moderator or automated system but is not yet published",
-        "processing // the product is in a loading state. automated systems are processing the product, e.g. scraping data",
-        "published // this product has been published"
+        "published // this product has been published and is visible",
+        "expired // this offer has expired and is no longer visible or accessible",
+        "// Please note that other internal statuses exist. You should never accidentally come accross a product with such status but your implementation should be able to handle them by e.g. treating all products with unknown status as not found."
       ]
     },
     "Store": {
@@ -200,8 +200,17 @@
       "schema": [
         "{",
         "  id: number",
-        "  urn: string",
         "  products: int[] // ids of all products in the announcement",
+        "}"
+      ]
+    },
+    "ResolvedAnnouncement": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  id: number",
+        "  products: int[] // ids of all products in the announcement",
+        "  resolvedProducts: Product[] // resolved products",
         "}"
       ]
     },
@@ -210,10 +219,13 @@
       "schema": [
         "keep // Free to Keep / 100% discount",
         "timed // Free to play / Free weekend",
+        "other // DLCs & More / everything else",
         "prime // Available through Prime Gaming",
         "gamepass // Available through GamePass",
-        "other // DLCs & More / everything else",
-        "debug // exclusively used internally"
+        "mobile // not for public use",
+        "news // not for public use",
+        "unknown // not for public use",
+        "debug // not for public use"
       ]
     }
   },
