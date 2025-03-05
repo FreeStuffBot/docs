@@ -8,7 +8,15 @@
         "detail": "error message"
       },
       "headers": {
-        "X-Server-Time": "<timestamp:int> // current server time in unix ms"
+      }
+    },
+    "generic-304": {
+      "code": 304,
+      "desc": "No changes since last request.",
+      "returns": {
+        "body": null,
+        "headers": {
+        }
       }
     },
     "generic-502": {
@@ -91,6 +99,19 @@
         "  staffApproved: boolean // true means a human checked the data prior to being published",
         "  *platforms: Platform[] // *this array will always be empty on the free tier",
         "  *meta: ProductMeta[] // *this array will always be empty on the free tier",
+        "}"
+      ]
+    },
+    "PartialProduct": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  id: int",
+        "  kind: ProductKind",
+        "  until: int // unix timestamp in ms",
+        "  type: PublishingChannel",
+        "  flags: ProductFlags",
+        "  store: Store // steam, epic games, etc.",
         "}"
       ]
     },
@@ -263,6 +284,12 @@
           "desc": "Your Bearer token"
         },
         {
+          "location": "header",
+          "key": "If-None-Match",
+          "type": "?string",
+          "desc": "A previously received ETag value. Recommended but not required."
+        },
+        {
           "location": "query",
           "key": "limit",
           "type": "?int",
@@ -276,39 +303,53 @@
         },
         {
           "location": "query",
+          "key": "resolve",
+          "type": "?boolean",
+          "desc": "If set to true will return full products instead of partial ones. The ETag hash will also be computed over the entire product data and not just their ids."
+        },
+        {
+          "location": "query",
           "key": "type",
           "type": "?Channel",
-          "desc": "Only list products with the given type"
+          "desc": "Filter: Only list products with the given type"
         },
         {
           "location": "query",
           "key": "kind",
           "type": "?ProductKind",
-          "desc": "Only list products with the given kind"
+          "desc": "Filter: Only list products with the given kind"
         },
         {
           "location": "query",
-          "key": "since",
-          "type": "?int (unix ms time)",
-          "desc": "Only list products published at or after the given timestamp"
+          "key": "store",
+          "type": "?ProductStore",
+          "desc": "Filter: Only list products with the given store"
         }
       ],
       "responses": [
         {
           "code": 200,
-          "desc": "Success",
+          "desc": "Success. Returns a list of PartialProduct objects and a number of total results. Even if no \"limit\" parameter is provided the results might be limited to a certain page size. Use the total count to determine if a second request is required.",
           "returns": {
             "body": {
-              "TODO": true
+              "products": [
+                {
+                  "id": 123456,
+                  "kind": "game",
+                  "until": 0,
+                  "type": "keep",
+                  "flags": 0,
+                  "store": "steam"
+                }
+              ],
+              "count": 1
             },
             "headers": {
-              "X-Server-Time": "<timestamp:int> // current server time in unix ms",
-              "X-Next-Page": "<offset:int> // which 'offset' query variable should be used to get the next page. this header is not present if the end of the list is reached",
-              "X-Next-Since": "<timestamp:int> // only if the request had a 'since' query parameter - which 'since' query variable should be used when requesting the next time",
-              "X-Check-Again": "<seconds:int> // only if the request had a 'since' query parameter - a recommendation on how many seconds to wait until requesting the next time. this value might decrease during peak times and increase during unlikely moments."
+              "ETag": "<hash:string> // see developer.mozilla.org/docs/Web/HTTP/Headers/ETag - will be a weak hash if resolve is false, strong hash if resolve is true. The hash will always include all products valid for your query, even if cut off through pagination. In other words, you will receive the same hash for different \"offset\" and \"limit\" values."
             }
           }
         },
+        "@generic-304",
         {
           "code": 400,
           "desc": "Invalid product id.",
@@ -339,10 +380,10 @@
           "desc": "Your Bearer token"
         },
         {
-          "location": "query",
-          "key": "localize",
-          "type": "?string[]",
-          "desc": "Deprecated. Returns a localized object for each language provided in the query value."
+          "location": "header",
+          "key": "If-None-Match",
+          "type": "?string",
+          "desc": "A previously received ETag value. Recommended but not required."
         }
       ],
       "responses": [
@@ -354,10 +395,11 @@
               "TODO": true
             },
             "headers": {
-              "X-Server-Time": "<integer timestamp>"
+              "ETag": "<hash:string> // see developer.mozilla.org/docs/Web/HTTP/Headers/ETag"
             }
           }
         },
+        "@generic-304",
         {
           "code": 400,
           "desc": "Invalid product id.",
