@@ -30,6 +30,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
       # Pick your own package manager and build script
       - run: bun install
       - run: bunx nuxt build --preset github_pages
