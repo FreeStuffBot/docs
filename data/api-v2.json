@@ -3,7 +3,7 @@
   "@": {
     "generic-error": {
       "body": {
-        "type": "urn:fsb:problem:name-here",
+        "type": "fsb:problem:name-here",
         "title": "error name",
         "detail": "error message"
       },
