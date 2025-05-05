@@ -264,7 +264,7 @@
       ],
       "responses": [
         {
-          "code": 200,
+          "code": 204,
           "desc": "Success",
           "returns": {
             "body": "@",
