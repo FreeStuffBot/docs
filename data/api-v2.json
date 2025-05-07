@@ -273,6 +273,137 @@
         }
       ]
     },
+    "get-static-schemas": {
+      "method": "GET",
+      "route": "/static/schemas",
+      "params": [
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your Bearer token"
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success",
+          "returns": {
+            "body": {
+              "type": "fsb:static:apiv2:schema_list",
+              "list": [
+                {
+                  "name": "Product",
+                  "urn": "fsb:schema:apiv2:product",
+                  "active": true,
+                  "latestVersion": "9999-99-99"
+                }
+              ]
+            },
+            "headers": {}
+          }
+        }
+      ]
+    },
+    "get-static-schemas-urn": {
+      "method": "GET",
+      "route": "/static/schemas/:urn",
+      "params": [
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your Bearer token"
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success",
+          "returns": {
+            "body": {
+              "type": "fsb:static:apiv2:schema",
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            },
+            "headers": {}
+          }
+        },
+        {
+          "code": 404,
+          "desc": "No schema with the given URN was found.",
+          "returns": "@generic-error"
+        }
+      ]
+    },
+    "get-static-problems": {
+      "method": "GET",
+      "route": "/static/problems",
+      "params": [
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your Bearer token"
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success",
+          "returns": {
+            "body": {
+              "type": "fsb:static:apiv2:problem_list",
+              "list": [
+                {
+                  "urn": "fsb:problem:example",
+                  "status": 400,
+                  "title": "Example error"
+                }
+              ]
+            },
+            "headers": {}
+          }
+        }
+      ]
+    },
+    "get-static-events": {
+      "method": "GET",
+      "route": "/static/events",
+      "params": [
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your Bearer token"
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success",
+          "returns": {
+            "body": {
+              "type": "fsb:static:apiv2:event_list",
+              "list": [
+                {
+                  "urn": "fsb:event:example",
+                  "description": "Human readable description of the event",
+                  "payloadDescription": "Human readable description of the event payload",
+                  "payloadSchema": {
+                    "type": "object",
+                    "properties": {}
+                  }
+                }
+              ]
+            },
+            "headers": {}
+          }
+        }
+      ]
+    },
     "get-products": {
       "method": "GET",
       "route": "/products",
@@ -359,8 +490,7 @@
           "code": 404,
           "desc": "No product with your id was found.",
           "returns": "@generic-error"
-        },
-        "@generic-502"
+        }
       ]
     },
     "get-products-id": {
