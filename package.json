@@ -1,6 +1,6 @@
 {
   "name": "freestuff-docs",
-  "version": "0.1.0",
+  "version": "1.0.0-rc1",
   "private": true,
   "scripts": {
     "dev": "nuxi dev --port 3008",
