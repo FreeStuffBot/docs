@@ -91,7 +91,7 @@
         "  rating: float // this is an aggregated score where 0 represents the worst possible and 1 the best possible rating",
         "  copyright: string // name of the ip copyright holder",
         "  until: int // unix timestamp in ms",
-        "  type: PublishingChannel",
+        "  type: Channel",
         "  urls: ProductUrl[] // *this array will only have a subset of all available urls on the free tier",
         "  store: Store // steam, epic games, etc.",
         "  flags: ProductFlags",
@@ -109,7 +109,7 @@
         "  id: int",
         "  kind: ProductKind",
         "  until: int // unix timestamp in ms",
-        "  type: PublishingChannel",
+        "  type: Channel",
         "  flags: ProductFlags",
         "  store: Store // steam, epic games, etc.",
         "}"
