@@ -159,6 +159,7 @@
         "1<<7 (TP_OTHER) // type: other, any other kind of image",
         "1<<8 (FT_WATERMARK) // feature: the image has a FreeStuff watermark on it",
         "1<<9 (FT_TAGS) // feature: the image has the tags rendered onto it",
+        "1<<11 (FT_WATERMARK_EXT) // feature: the image has an external watermark on it",
         "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
       ]
     },
@@ -170,6 +171,14 @@
         "1<<2 (TRACKING) // the url is tracking how many times it has been clicked. No pii is collected.",
         "1<<3 (OPENS_IN_BROWSER) // the url opens the platform's website",
         "1<<4 (OPENS_IN_CLIENT) // the url opens in the platform's client applications",
+        "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
+      ]
+    },
+    "ProductDescriptionFlags": {
+      "type": "int (bitfield)",
+      "schema": [
+        "1<<0 (ORIGINAL) // this description is original and unchanged from the store's description",
+        "1<<1 (AI_GENERATED) // this description is an AI generated summary of the original description",
         "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
       ]
     },
