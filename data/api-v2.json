@@ -36,7 +36,11 @@
         "art // digital artwork (unused)",
         "ost // game soundtrack (unused)",
         "book // digital book (unused)",
+        "bundle // multiple products bundled together",
         "storeitem // things like steam points store content",
+        "3d_model // gamedev asset: 3d models",
+        "texture // gamedev asset: textures and materials",
+        "audio // gamedev asset: sound effects and music",
         "other // other kinds of content, gaming related"
       ]
     },
@@ -61,6 +65,11 @@
         "ubi",
         "itch",
         "prime",
+        "gamepass",
+        "gplay // google play store",
+        "fab",
+        "daz // daz 3d",
+        "playstation",
         "// Please note that this list is non-exhaustive! While the names above will not change, new stores may be added at will and this documentation might not always be up to date with all possible values. Be sure to handle unknown platform values properly, e.g. treating them as 'other' until further differenciated."
       ]
     },
@@ -73,7 +82,10 @@
         "android",
         "ios",
         "xbox",
-        "playstation",
+        "ps4",
+        "ps5",
+        "unity // game engine, for gamedev assets",
+        "unreal // game engine, for gamedev assets",
         "// Please note that this list is non-exhaustive! While the names above will not change, new platforms may be added at will and this documentation might not always be up to date with all possible values. Be sure to handle unknown platform values properly, e.g. ignoring them."
       ]
     },
@@ -87,7 +99,7 @@
         "  kind: ProductKind",
         "  tags: string[] // unsorted, non-standardized, human readable",
         "  images: ProductImage[] // *this array will only have a subset of all available images on the free tier",
-        "  description: string // human readable description in english language",
+        "  description: ProductDescription[] // *this array will only have a subset of all available descriptions on the free tier",
         "  rating: float // this is an aggregated score where 0 represents the worst possible and 1 the best possible rating",
         "  copyright: string // name of the ip copyright holder",
         "  until: int // unix timestamp in ms",
@@ -97,8 +109,31 @@
         "  flags: ProductFlags",
         "  notice: string // a rare optional extra info text added by a FreeStuff team member meant for public display alongside the product",
         "  staffApproved: boolean // true means a human checked the data prior to being published",
+        "  updatedAt: int // unix timestamp in ms of the last time this product was updated",
         "  *platforms: Platform[] // *this array will always be empty on the free tier",
+        "  *videos: ProductVideo[] // *this array will always be empty on the free tier",
         "  *meta: ProductMeta[] // *this array will always be empty on the free tier",
+        "}"
+      ]
+    },
+    "ProductDescription": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  lang: string // language and region code of the text, e.g. \"en-US\"",
+        "  text: string // human readable description",
+        "  flags: ProductDescriptionFlags",
+        "  priority: int // a number indicating how well a certain description is suited for presentation; higher is better",
+        "}"
+      ]
+    },
+    "ProductVideo": {
+      "type": "Object",
+      "schema": [
+        "{",
+        "  url: string",
+        "  flags: ProductVideoFlags",
+        "  priority: int // a number indicating how well a certain video is suited for presentation; higher is better",
         "}"
       ]
     },
@@ -132,6 +167,8 @@
         "  url: string",
         "  flags: ProductUrlFlags",
         "  priority: int // a number indicating how well a certain url is suited for use; higher is better",
+        "  store: Store // the store this url leads to",
+        "  platforms: Platform[] // the platforms this url is relevant for",
         "}"
       ]
     },
@@ -174,6 +211,23 @@
         "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
       ]
     },
+    "ProductVideoFlags": {
+      "type": "int (bitfield)",
+      "schema": [
+        "1<<0 (PROXIED) // if this video is proxied and/or provided by FreeStuff",
+        "1<<1 (AR_WIDE) // aspect ratio: video is in landscape orientation",
+        "1<<2 (AR_SQUARE) // aspect ratio: video is square",
+        "1<<3 (AR_TALL) // aspect ratio: video is in portrait orientation",
+        "1<<4 (TP_TRAILER) // type: trailer or other promotional video",
+        "1<<5 (TP_SHOWCASE) // type: showcase or gameplay footage",
+        "1<<6 (TP_OTHER) // type: other, any other kind of video",
+        "1<<7 (FMT_HLS) // format: HLS stream (.m3u8 manifest)",
+        "1<<8 (FMT_DASH) // format: MPEG-DASH stream (.mpd manifest)",
+        "1<<9 (FMT_FILE) // format: a video file that can be played directly (e.g. .mp4, .webm)",
+        "1<<10 (FMT_EMBED) // format: a page or embed url (e.g. YouTube) that is not directly playable; open or embed it instead",
+        "// note: All flags are optional. Additional internal flags exist that are not documented here - your implementation must be able to handle them."
+      ]
+    },
     "ProductDescriptionFlags": {
       "type": "int (bitfield)",
       "schema": [
@@ -209,12 +263,22 @@
         "scraper.sources // the sources used by the webscraper",
         "scraper.version // the version of the webscraper used",
         "igdb.gameid // id of the product's corresponding game in the igdb",
+        "steam.appid // steam appid",
         "steam.subids // steam subids, if any, comma seperated",
         "steam.achievements // steam achievement count",
         "steam.recommendations // steam number of curator recommendations",
+        "steam.developers // steam developer names, comma seperated",
         "epic.namespace // epic games namespace",
         "epic.id // epic games id",
+        "epic.product // epic games product id",
         "itch.creator // itch.io creator name",
+        "gog.productid // gog product id",
+        "gog.dlcids // gog product ids of related dlcs, comma seperated",
+        "gog.pegirating // gog PEGI age rating",
+        "gog.uskrating // gog USK age rating",
+        "gog.brrating // gog brazilian age rating",
+        "ubi.developers // ubisoft developer names, comma seperated",
+        "ubi.editiontitle // ubisoft name of the edition, if any",
         "prime.itemid // prime itemid",
         "prime.offerid // prime offerid",
         "prime.codegrant // prime does this product grant a code?",
@@ -222,6 +286,7 @@
         "prime.linkitem // prime is this product a retail link item?",
         "prime.fgwp // prime is product flagged as Free Games With Prime?",
         "prime.priority // prime listing priority",
+        "prime.redemeon // prime platforms the offer can be redeemed on, comma seperated",
         "// note: This list is non-exhaustive and only shows commonly used keys. Additional metadata may be present. Fields starting with a store name are only present on products coming from this store."
       ]
     },
@@ -250,9 +315,11 @@
         "keep // Free to Keep / 100% discount",
         "timed // Free to play / Free weekend",
         "other // DLCs & More / everything else",
-        "prime // Available through Prime Gaming",
-        "gamepass // Available through GamePass",
-        "mobile // not for public use",
+        "prime // Available through Amazon Luna (formerly Prime Gaming); full tier only",
+        "gamepass // Available through GamePass; full tier only",
+        "mobile // Free mobile games & content",
+        "playstation // Available through PlayStation Plus; full tier only",
+        "assets // Free gamedev assets like 3d models, textures, and audio",
         "news // not for public use",
         "unknown // not for public use",
         "debug // not for public use"
@@ -260,28 +327,6 @@
     }
   },
   "endpoints": {
-    "get-ping": {
-      "method": "GET",
-      "route": "/ping",
-      "params": [
-        {
-          "location": "header",
-          "key": "Authorization",
-          "type": "string",
-          "desc": "Your Bearer token"
-        }
-      ],
-      "responses": [
-        {
-          "code": 204,
-          "desc": "Success",
-          "returns": {
-            "body": "@",
-            "headers": {}
-          }
-        }
-      ]
-    },
     "get-static-schemas": {
       "method": "GET",
       "route": "/static/schemas",
@@ -547,6 +592,34 @@
         {
           "code": 404,
           "desc": "No product with your id was found.",
+          "returns": "@generic-error"
+        },
+        "@generic-502"
+      ]
+    },
+    "get-config": {
+      "method": "GET",
+      "route": "/config",
+      "params": [
+        {
+          "location": "header",
+          "key": "Authorization",
+          "type": "string",
+          "desc": "Your Bearer token"
+        }
+      ],
+      "responses": [
+        {
+          "code": 200,
+          "desc": "Success. Returns the configuration for your app.",
+          "returns": {
+            "body": {},
+            "headers": {}
+          }
+        },
+        {
+          "code": 403,
+          "desc": "This endpoint is only available to select apps.",
           "returns": "@generic-error"
         },
         "@generic-502"
