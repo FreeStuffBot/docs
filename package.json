@@ -2,6 +2,7 @@
   "name": "freestuff-docs",
   "version": "1.0.0-rc1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "nuxi dev --port 3008",
     "build": "nuxi build",
@@ -10,13 +11,11 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@nuxt-themes/docus": "latest",
-    "@nuxt/devtools": "^0.8.5",
     "@nuxt/eslint-config": "^0.2.0",
-    "@nuxtjs/plausible": "^0.2.4",
     "@types/node": "^20.17.23",
+    "docus": "^5.15.0",
     "eslint": "^8.57.1",
-    "nuxt": "^3.15.4",
+    "nuxt": "^4.2.0",
     "sass": "^1.85.1"
   }
 }

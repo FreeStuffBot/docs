@@ -4,7 +4,7 @@
       <span :data-method="data.method.toUpperCase()" v-text="data.method" />
       <span class="route-pre" v-text="v2.base" />
       <span class="route" v-text="data.route" />
-      <Icon name="ph:caret-down-bold" />
+      <UIcon name="i-lucide-chevron-down" />
     </div>
     <div class="content">
       <h4>Parameters</h4>
@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import v2 from '~/data/api-v2.json'
+import v2 from '~~/data/api-v2.json'
 
 const props = defineProps<{
   name: keyof typeof v2['endpoints']
@@ -138,7 +138,7 @@ const codeNames: Record<string, string> = {
 
 <style scoped lang=scss>
 .endpoint {
-  background-color: var(--elements-backdrop-background);
+  background-color: var(--ui-bg-muted);
   border-radius: 10pt;
   border: 1px solid #88888830;
   margin-bottom: 15pt;

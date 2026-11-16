@@ -4,7 +4,7 @@
       <span class="title" v-text="name" />
       <span class="type" v-text="`: ${data.type}`" />
       <span class="tag">Data Model</span>
-      <Icon name="ph:caret-down-bold" />
+      <UIcon name="i-lucide-chevron-down" />
     </div>
     <div class="content">
       <div v-for="line,i of data.schema" :key="i" class="line">
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import v2 from '~/data/api-v2.json'
+import v2 from '~~/data/api-v2.json'
 
 const props = defineProps<{
   name: keyof typeof v2['models']
@@ -33,7 +33,7 @@ const openRel = computed(() => open.value ? '1' : '0')
 
 <style scoped lang=scss>
 .data-model {
-  background-color: var(--elements-backdrop-background);
+  background-color: var(--ui-bg-muted);
   border-radius: 10pt;
   border: 1px solid #88888830;
   margin-bottom: 15pt;
