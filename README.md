@@ -1,57 +1,13 @@
-# Docus Starter
+# FreeStuff API Docs
 
-Starter template for [Docus](https://docus.dev).
-
-## Clone
-
-Clone the repository (using `nuxi`):
+Source of https://docs.freestuffbot.xyz, built with [Docus](https://docus.dev) and deployed to GitHub Pages on push to `master`.
 
 ```bash
-npx nuxi init -t themes/docus
+bun install
+bun run dev        # http://localhost:3008
+bun run generate   # static build into .output/public
 ```
 
-## Setup
-
-Install dependencies:
-
-```bash
-yarn install
-```
-
-## Development
-
-```bash
-yarn dev
-```
-
-## Edge Side Rendering
-
-Can be deployed to Vercel Functions, Netlify Functions, AWS, and most Node-compatible environments.
-
-Look at all the available presets [here](https://v3.nuxtjs.org/guide/deploy/presets).
-
-```bash
-yarn build
-```
-
-## Static Generation
-
-Use the `generate` command to build your application.
-
-The HTML files will be generated in the .output/public directory and ready to be deployed to any static compatible hosting.
-
-```bash
-yarn generate
-```
-
-## Preview build
-
-You might want to preview the result of your build locally, to do so, run the following command:
-
-```bash
-yarn preview
-```
-
----
-
-For a detailed explanation of how things work, check out [Docus](https://docus.dev).
+- Pages live in `content/`, API data models and endpoints in `data/api-v2.json` (rendered by `app/components/content/`).
+- For AI agents the build also emits `/llms.txt`, `/llms-full.txt`, `/sitemap.md`, a markdown copy of every page under `/raw/<path>.md` and the agent skills from `skills/` under `/.well-known/skills/`.
+- `server/plugins/agent-api-reference.ts` expands the `:data-model` / `:endpoint` components into plain markdown for those files.
